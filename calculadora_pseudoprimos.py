@@ -26,4 +26,4 @@ def pseudoprimos(base, limite, contador = False):
   if(contador == True):
     print("Quantidade de pseudoprimos: ",cont)
 
-pseudoprimos(2, 100000, True)
+pseudoprimos(7, 100000, True)
