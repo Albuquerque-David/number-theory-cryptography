@@ -125,6 +125,20 @@ def gera_chaves(dp,dq):
     d = euclides_estendido(e,phi)
     d += phi
 
+    #Calcula o inverso ip de p mod(q)
+    ip = euclides_estendido(p,q)
+    if(ip < 0):
+      ip += q
+
+    #Calcula o inverso iq de q mod(p)
+    iq = euclides_estendido(q,p)
+    if(iq < 0)
+      iq += p
+
+    #Calcula as formas reduzidas de d mod p - 1 e q - 1
+    pd = pow(d, 1, p-1)
+    qd = pow(d, 1,q-1)
+
     #print("P: {}".format(p))
     #print("Q: {}".format(q))
     #print("Chave publica N: {}".format(n))
@@ -134,12 +148,15 @@ def gera_chaves(dp,dq):
     #print("Numero de digitos de P: {}".format(len(str(p))))
     #print("Numero de digitos de Q: {}".format(len(str(q))))
     #print("Numero de digitos de N: {}".format(len(str(n))))
+    #print("Inverso p mod q: {}".format(ip))
+    #print("Inverso q mod p: {}".format(iq))
+    #print("Forma reduzida d mod p - 1: {}".format(pd))
+    #print("Forma reduzida d mod q - 1: {}".format(qd))
 
     fim = time.time()
     #print("============ A funcao gera_chaves demorou: {} segundos ============".format(fim-ini))
 
-    return n, e, d
-    #return p,q
+    return n, e, d, p, q, ip, iq, pd, qd
 
 def encriptar(texto,n,e):
     """Funcao responsavel por encriptar uma string texto em blocos usando as chaves publicas n (modulo) e e (expoente)."""
@@ -166,6 +183,15 @@ def descriptar(texto, n, d):
     texto_descriptado = desconverte_texto(texto_desquebrado)
     #print("Texto descriptado: {}".format(texto_descriptado))
     return texto_descriptado
+
+
+def descriptar_rapido(texto, n, d, p, q, ip, iq, pd, qd):
+  for index, value in enumerate(texto):
+      texto[index] = (pow(int(value), pd, p) * q * iq) + (pow(int(value), qd, q) * p * ip)
+  print("estou no descripta rapido")
+  print(texto)
+  texto_desquebrado = desquebra_blocos(texto)
+  return texto_desquebrado
 
 #==============Algoritmos Auxiliares==============
 def parte_par(m):
@@ -233,6 +259,7 @@ print("=========================RSA=========================")
 ini = time.time()
 n, e, d = gera_chaves(50, 100)
 print(descriptar(encriptar("Hi! Im a simple message!", n, e), n, d))
+print(descriptar(encriptar("oi", n, e), n, d, p, q, ip, iq, pd, qd))
 fim = time.time()
 print("O processo completo levou: {}".format(fim-ini))
 print("=========================RSA=========================")
