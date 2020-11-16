@@ -77,10 +77,9 @@ def desquebra_blocos(texto_blocos):
 
 def gera_primos(n):
     """Funcao responsavel por gerar um numero primo de tamanho n atraves de tentativas pelo teste de Miller-Rabin."""
-    ini = time.time()
     
     print("====================")
-    print("Gerando numero primo")
+    print("Gerando número primo")
     print("====================")
     i = 0
     while(i <= 10):
@@ -94,13 +93,10 @@ def gera_primos(n):
             base = random.randrange(1, primo)
             if(Miller_Rabin(primo,base) == "inconclusivo"):
                 i+=1
-    fim = time.time()
-    #print("============ A funcao gera_primos demorou: {} segundos ============".format(fim-ini))
     return primo
 
 def gera_chaves(dp,dq):
-    """Funcao responsavel por gerar as chaves do RSA. Dp e o numero de digitos de P e Dq e o numero de digitos de Q"""
-    ini = time.time()
+    """Função responsavel por gerar as chaves do RSA. Dp e o numero de digitos de P e Dq e o numero de digitos de Q"""
     print("==============")
     print("Gerando chaves")
     print("==============")
@@ -119,7 +115,6 @@ def gera_chaves(dp,dq):
           e = i
       else:
         i+=1
-      
 
     #Calcula o inverso d de e mod(phi)
     d = euclides_estendido(e,phi)
@@ -132,7 +127,7 @@ def gera_chaves(dp,dq):
 
     #Calcula o inverso iq de q mod(p)
     iq = euclides_estendido(q,p)
-    if(iq < 0)
+    if(iq < 0):
       iq += p
 
     #Calcula as formas reduzidas de d mod p - 1 e q - 1
@@ -153,13 +148,10 @@ def gera_chaves(dp,dq):
     #print("Forma reduzida d mod p - 1: {}".format(pd))
     #print("Forma reduzida d mod q - 1: {}".format(qd))
 
-    fim = time.time()
-    #print("============ A funcao gera_chaves demorou: {} segundos ============".format(fim-ini))
-
     return n, e, d, p, q, ip, iq, pd, qd
 
 def encriptar(texto,n,e):
-    """Funcao responsavel por encriptar uma string texto em blocos usando as chaves publicas n (modulo) e e (expoente)."""
+    """Função responsável por encriptar uma string texto em blocos usando as chaves publicas n (modulo) e e (expoente)."""
     print("=================")
     print("Encriptando texto")
     print("=================")
@@ -167,33 +159,36 @@ def encriptar(texto,n,e):
     texto_numero_blocos = quebra_blocos(len(str(n))-1,texto_numero)
     for index, value in enumerate(texto_numero_blocos):
       texto_numero_blocos[index] = pow(int(value),e,n) 
-    #print("Texto encriptado em blocos: {}".format(texto_numero_blocos))
+
     return texto_numero_blocos
 
 
 def descriptar(texto, n, d):
-    """Funcao responsavel por descriptar blocos de string encriptadas usando as chaves publicas n (modulo) e e (expoente)."""
+    """Função responsavel por descriptar blocos de string encriptadas usando as chaves publicas n (modulo) e e (expoente)."""
     print("==================")
     print("Descriptando texto")
     print("==================")
     for index, value in enumerate(texto):
       texto[index] = pow(int(value), d, n)
     texto_desquebrado = desquebra_blocos(texto)
-    #print("Texto desquebrado: {}".format(texto_desquebrado))
     texto_descriptado = desconverte_texto(texto_desquebrado)
-    #print("Texto descriptado: {}".format(texto_descriptado))
     return texto_descriptado
 
 
 def descriptar_rapido(texto, n, d, p, q, ip, iq, pd, qd):
+  print("==================")
+  print("Descriptando texto")
+  print("==================")
   for index, value in enumerate(texto):
       texto[index] = (pow(int(value), pd, p) * q * iq) + (pow(int(value), qd, q) * p * ip)
-  print("estou no descripta rapido")
-  print(texto)
+      texto[index] = pow(texto[index],1,n)
+
   texto_desquebrado = desquebra_blocos(texto)
-  return texto_desquebrado
+  texto_descriptado = desconverte_texto(texto_desquebrado)
+  return texto_descriptado
 
 #==============Algoritmos Auxiliares==============
+
 def parte_par(m):
   """Retorna k e q tais que m = (2**k)*q com q impar"""
   k = 0
@@ -228,14 +223,11 @@ def Miller_Rabin(n, base):
 def euclides(a, b):
   """Calcula o mdc(a,b), com a,b naturais e b>0, pelo algoritmo de Euclides"""
   dividendo, divisor = a, b
-  resto = dividendo % divisor  # resto da divisao de dividendo por divisor
-  #print(dividendo, divisor, resto)
+  resto = dividendo % divisor 
   while resto != 0:
     dividendo, divisor = divisor, resto
     resto = dividendo % divisor
-    # ou, de uma vez so:
-    # dividendo, divisor, resto = divisor, resto, divisor%resto
-    #print(dividendo, divisor, resto)
+
   return divisor
 
 
@@ -249,19 +241,23 @@ def euclides_estendido(a, b):
         quociente, resto = dividendo//divisor, dividendo % divisor
         x_ant, x_novo = x_novo, x_ant - (x_novo*quociente)
         y_ant, y_novo = y_novo, y_ant - (y_novo*quociente)
-        #print("dividendo:", dividendo, ", divisor: ", divisor, ", quociente:", quociente, ", resto: ",
-        #     resto, ", x_ant: ", x_ant, ", y_ant: ", y_ant, ", x_novo: ", x_novo, ", y_novo: ", y_novo)
+
     return x_ant
 
 #Main
 
 print("=========================RSA=========================")
+
+n, e, d, p, q, ip, iq, pd, qd = gera_chaves(50, 100)
 ini = time.time()
-n, e, d = gera_chaves(50, 100)
-print(descriptar(encriptar("Hi! Im a simple message!", n, e), n, d))
-print(descriptar(encriptar("oi", n, e), n, d, p, q, ip, iq, pd, qd))
+print(descriptar_rapido(encriptar("Chrono Trigger is the best game ever made.", n, e), n, d, p, q, ip, iq, pd, qd))
 fim = time.time()
-print("O processo completo levou: {}".format(fim-ini))
+print("O processo do descriptar_rapido completo levou: {}".format(fim-ini))
+ini = time.time()
+print(descriptar(encriptar("Chrono Trigger is the best game ever made.", n, e), n, d))
+fim = time.time()
+print("O processo do descriptar completo levou: {}".format(fim-ini))
+
 print("=========================RSA=========================")
 
 #print(quebra_blocos(2,1234567))
